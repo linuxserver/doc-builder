@@ -52,7 +52,7 @@ The architectures supported by this image are:
 | {{ item.arch }} | {{ item.tag }} |
 {% endfor %}
 
-{% if development_versions is defined and development_versions is sameas true %}
+{% if development_versions %}
 ## Version Tags
 
 This image provides various versions that are available via tags. `latest` tag usually provides the latest stable version. Others are considered under development and caution must be exercised when using them.
