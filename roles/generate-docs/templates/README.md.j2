@@ -232,17 +232,18 @@ services:
       - {{ item.external_port }}:{{ item.internal_port }} #optional
 {% endfor %}
 {% endif %}
-{% if param_device_map %}
+{% if param_device_map or opt_param_device_map %}
     devices:
+{% if param_device_map %}
 {% for item in param_devices %}
       - {{ item.device_host_path }}:{{ item.device_path }}
 {% endfor %}
 {% endif %}
 {% if opt_param_device_map %}
-    devices:
 {% for item in opt_param_devices %}
       - {{ item.device_host_path }}:{{ item.device_path }} #optional
 {% endfor %}
+{% endif %}
 {% endif %}
     mem_limit: 4096m
     restart: unless-stopped{% else %}{{ custom_compose }}{% endif %}
@@ -291,6 +292,16 @@ Container images are configured using parameters passed at runtime (such as thos
 {% if opt_param_usage_include_vols %}
 {% for item in opt_param_volumes %}
 | `-v {{ item.vol_path }}` | {{ item.desc }} |
+{% endfor %}
+{% endif %}
+{% if param_device_map %}
+{% for item in param_devices %}
+| `-v {{ item.device_path }}` | {{ item.desc }} |
+{% endfor %}
+{% endif %}
+{% if opt_param_device_map %}
+{% for item in opt_param_devices %}
+| `-v {{ item.device_path }}` | {{ item.desc }} |
 {% endfor %}
 {% endif %}
 
