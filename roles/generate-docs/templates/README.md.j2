@@ -75,18 +75,30 @@ docker create \
   --name={{ param_container_name }} \
 {% if param_usage_include_net %}
   --net={{ param_net }} \
+{% elif param_usage_include_net is sameas optional %}
+  --net={{ param_net }} `#optional` \
 {% endif %}
-{% if privileged is defined and privileged is sameas true %}
+{% if privileged %}
   --privileged \
+{% elif privileged is sameas optional %}
+  --privileged `#optional` \
 {% endif %}
-{% if cap_add_param is defined and cap_add_param is sameas true %}
+{% if cap_add_param %}
 {% for item in cap_add_param_vars %}
   --cap-add={{ item.cap_add_var }} \
+{% endfor %}
+{% if opt_cap_add_param %}
+{% for item in opt_cap_add_param_vars %}
+  --cap-add={{ item.cap_add_var }} `#optional` \
 {% endfor %}
 {% endif %}
 {% if common_param_env_vars_enabled %}
 {% for item in common_param_env_vars %}
   -e {{ item.env_var }}={{ item.env_value }} \
+{% endfor %}
+{% elif common_param_env_vars_enabled is sameas optional %}
+{% for item in common_param_env_vars %}
+  -e {{ item.env_var }}={{ item.env_value }} `#optional` \
 {% endfor %}
 {% endif %}
 {% if param_usage_include_env %}
@@ -94,9 +106,19 @@ docker create \
   -e {{ item.env_var }}={{ item.env_value }} \
 {% endfor %}
 {% endif %}
+{% if opt_param_usage_include_env %}
+{% for item in opt_param_env_vars %}
+  -e {{ item.env_var }}={{ item.env_value }} `#optional` \
+{% endfor %}
+{% endif %}
 {% if param_usage_include_ports %}
 {% for item in param_ports %}
   -p {{ item.external_port }}:{{ item.internal_port }} \
+{% endfor %}
+{% endif %}
+{% if opt_param_usage_include_ports %}
+{% for item in opt_param_ports %}
+  -p {{ item.external_port }}:{{ item.internal_port }} `#optional` \
 {% endfor %}
 {% endif %}
 {% if param_usage_include_vols %}
@@ -104,9 +126,19 @@ docker create \
   -v {{ item.vol_host_path }}:{{ item.vol_path }} \
 {% endfor %}
 {% endif %}
-{% if param_device_map is defined and param_device_map is sameas true %}
+{% if opt_param_usage_include_vols %}
+{% for item in opt_param_volumes %}
+  -v {{ item.vol_host_path }}:{{ item.vol_path }} `#optional` \
+{% endfor %}
+{% endif %}
+{% if param_device_map %}
 {% for item in param_devices %}
   --device {{ item.device_host_path }}:{{ item.device_path }} \
+{% endfor %}
+{% endif %}
+{% if opt_param_device_map %}
+{% for item in opt_param_devices %}
+  --device {{ item.device_host_path }}:{{ item.device_path }} `#optional` \
 {% endfor %}
 {% endif %}
   --restart unless-stopped \
@@ -130,29 +162,49 @@ services:
   {{ project_name }}:
     image: {{ lsio_project_name_short }}/{{ project_name }}
     container_name: {{ project_name }}
-{% if privileged is defined and privileged is sameas true %}
+{% if privileged %}
     privileged: true
+{% elif privileged is sameas optional %}
+    privileged: true #optional
 {% endif %}
-{% if cap_add_param is defined and cap_add_param is sameas true %}
+{% if cap_add_param or opt_cap_add_param %}
     cap_add:
+{% if cap_add_param %}
 {% for item in cap_add_param_vars %}
       - {{ item.cap_add_var }}
 {% endfor %}
 {% endif %}
+{% if opt_cap_add_param %}
+{% for item in opt_cap_add_param_vars %}
+      - {{ item.cap_add_var }} #optional
+{% endfor %}
+{% endif %}
+{% endif %}
 {% if param_usage_include_net %}
     network_mode: {{ param_net }}
+{% elif param_usage_include_net is sameas optional %}
+    network_mode: {{ param_net }} #optional
 {% endif %}
-{% if common_param_env_vars_enabled or param_usage_include_env %}
+{% if common_param_env_vars_enabled or common_param_env_vars_enabled is sameas optional or param_usage_include_env or opt_param_usage_include_env %}
     environment:
 {% endif %}
 {% if common_param_env_vars_enabled %}
 {% for item in common_param_env_vars %}
       - {{ item.env_var }}={{ item.env_value }}
 {% endfor %}
+{% elif common_param_env_vars_enabled is sameas optional %}
+{% for item in common_param_env_vars %}
+      - {{ item.env_var }}={{ item.env_value }} #optional
+{% endfor %}
 {% endif %}
 {% if param_usage_include_env %}
 {% for item in param_env_vars %}
       - {{ item.env_var }}={{ item.env_value }}
+{% endfor %}
+{% endif %}
+{% if opt_param_usage_include_env %}
+{% for item in opt_param_env_vars %}
+      - {{ item.env_var }}={{ item.env_value }} #optional
 {% endfor %}
 {% endif %}
 {% if param_usage_include_vols %}
@@ -161,16 +213,34 @@ services:
       - {{ item.vol_host_path }}:{{ item.vol_path }}
 {% endfor %}
 {% endif %}
+{% if opt_param_usage_include_vols %}
+    volumes:
+{% for item in opt_param_volumes %}
+      - {{ item.vol_host_path }}:{{ item.vol_path }} #optional
+{% endfor %}
+{% endif %}
 {% if param_usage_include_ports %}
     ports:
 {% for item in param_ports %}
       - {{ item.external_port }}:{{ item.internal_port }}
 {% endfor %}
 {% endif %}
-{% if param_device_map is defined and param_device_map is sameas true %}
+{% if opt_param_usage_include_ports %}
+    ports:
+{% for item in opt_param_ports %}
+      - {{ item.external_port }}:{{ item.internal_port }} #optional
+{% endfor %}
+{% endif %}
+{% if param_device_map %}
     devices:
 {% for item in param_devices %}
       - {{ item.device_host_path }}:{{ item.device_path }}
+{% endfor %}
+{% endif %}
+{% if opt_param_device_map %}
+    devices:
+{% for item in opt_param_devices %}
+      - {{ item.device_host_path }}:{{ item.device_path }} #optional
 {% endfor %}
 {% endif %}
     mem_limit: 4096m
@@ -184,7 +254,7 @@ Container images are configured using parameters passed at runtime (such as thos
 
 | Parameter | Function |
 | :----: | --- |
-{% if param_usage_include_net %}
+{% if param_usage_include_net or param_usage_include_net is sameas optional %}
 | `--net={{ param_net }}` | {{ param_net_desc }} |
 {% endif %}
 {% if param_usage_include_ports %}
@@ -192,7 +262,12 @@ Container images are configured using parameters passed at runtime (such as thos
 | `-p {{ item.internal_port }}` | {{ item.port_desc }} |
 {% endfor %}
 {% endif %}
-{% if common_param_env_vars_enabled %}
+{% if opt_param_usage_include_ports %}
+{% for item in opt_param_ports %}
+| `-p {{ item.internal_port }}` | {{ item.port_desc }} |
+{% endfor %}
+{% endif %}
+{% if common_param_env_vars_enabled or common_param_env_vars_enabled is sameas optional %}
 {% for item in common_param_env_vars %}
 | `-e {{ item.env_var }}={{ item.env_value }}` | {{ item.desc }} |
 {% endfor %}
@@ -202,8 +277,18 @@ Container images are configured using parameters passed at runtime (such as thos
 | `-e {{ item.env_var }}={{ item.env_value }}` | {{ item.desc }} |
 {% endfor %}
 {% endif %}
+{% if opt_param_usage_include_env %}
+{% for item in opt_param_env_vars %}
+| `-e {{ item.env_var }}={{ item.env_value }}` | {{ item.desc }} |
+{% endfor %}
+{% endif %}
 {% if param_usage_include_vols %}
 {% for item in param_volumes %}
+| `-v {{ item.vol_path }}` | {{ item.desc }} |
+{% endfor %}
+{% endif %}
+{% if opt_param_usage_include_vols %}
+{% for item in opt_param_volumes %}
 | `-v {{ item.vol_path }}` | {{ item.desc }} |
 {% endfor %}
 {% endif %}
@@ -214,7 +299,7 @@ Container images are configured using parameters passed at runtime (such as thos
 {{ optional_parameters }}
 
 {% endif %}
-{% if common_param_env_vars_enabled %}
+{% if common_param_env_vars_enabled or common_param_env_vars_enabled is sameas optional %}
 ## User / Group Identifiers
 
 When using volumes (`-v` flags) permissions issues can arise between the host OS and the container, we avoid this issue by allowing you to specify the user `PUID` and group `PGID`.
@@ -227,6 +312,10 @@ In this instance `PUID=1001` and `PGID=1001`, to find yours use `id user` as bel
   $ id username
     uid=1001(dockeruser) gid=1001(dockergroup) groups=1001(dockergroup)
 ```
+
+{% if common_param_env_vars_enabled is sameas optional %}
+You only need to set the PUID and PGID variables if you are mounting the /config folder
+{% endif %}
 {% endif %}
 
 &nbsp;
