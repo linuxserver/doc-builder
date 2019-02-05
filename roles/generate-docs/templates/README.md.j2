@@ -73,14 +73,14 @@ Here are some example snippets to help you get started creating a container.
 ```
 docker create \
   --name={{ param_container_name }} \
-{% if param_usage_include_net %}
+{% if param_usage_include_net is sameas true %}
   --net={{ param_net }} \
-{% elif param_usage_include_net is sameas optional %}
+{% elif param_usage_include_net == 'optional' %}
   --net={{ param_net }} `#optional` \
 {% endif %}
-{% if privileged %}
+{% if privileged is sameas true %}
   --privileged \
-{% elif privileged is sameas optional %}
+{% elif privileged == 'optional' %}
   --privileged `#optional` \
 {% endif %}
 {% if cap_add_param %}
@@ -93,11 +93,11 @@ docker create \
   --cap-add={{ item.cap_add_var }} `#optional` \
 {% endfor %}
 {% endif %}
-{% if common_param_env_vars_enabled %}
+{% if common_param_env_vars_enabled is sameas true %}
 {% for item in common_param_env_vars %}
   -e {{ item.env_var }}={{ item.env_value }} \
 {% endfor %}
-{% elif common_param_env_vars_enabled is sameas optional %}
+{% elif common_param_env_vars_enabled == 'optional' %}
 {% for item in common_param_env_vars %}
   -e {{ item.env_var }}={{ item.env_value }} `#optional` \
 {% endfor %}
@@ -163,9 +163,9 @@ services:
   {{ project_name }}:
     image: {{ lsio_project_name_short }}/{{ project_name }}
     container_name: {{ project_name }}
-{% if privileged %}
+{% if privileged is sameas true %}
     privileged: true
-{% elif privileged is sameas optional %}
+{% elif privileged == 'optional' %}
     privileged: true #optional
 {% endif %}
 {% if cap_add_param or opt_cap_add_param %}
@@ -181,19 +181,19 @@ services:
 {% endfor %}
 {% endif %}
 {% endif %}
-{% if param_usage_include_net %}
+{% if param_usage_include_net is sameas true %}
     network_mode: {{ param_net }}
-{% elif param_usage_include_net is sameas optional %}
+{% elif param_usage_include_net == 'optional' %}
     network_mode: {{ param_net }} #optional
 {% endif %}
-{% if common_param_env_vars_enabled or common_param_env_vars_enabled is sameas optional or param_usage_include_env or opt_param_usage_include_env %}
+{% if common_param_env_vars_enabled or param_usage_include_env or opt_param_usage_include_env %}
     environment:
 {% endif %}
-{% if common_param_env_vars_enabled %}
+{% if common_param_env_vars_enabled is sameas true %}
 {% for item in common_param_env_vars %}
       - {{ item.env_var }}={{ item.env_value }}
 {% endfor %}
-{% elif common_param_env_vars_enabled is sameas optional %}
+{% elif common_param_env_vars_enabled == 'optional' %}
 {% for item in common_param_env_vars %}
       - {{ item.env_var }}={{ item.env_value }} #optional
 {% endfor %}
@@ -255,7 +255,7 @@ Container images are configured using parameters passed at runtime (such as thos
 
 | Parameter | Function |
 | :----: | --- |
-{% if param_usage_include_net or param_usage_include_net is sameas optional %}
+{% if param_usage_include_net %}
 | `--net={{ param_net }}` | {{ param_net_desc }} |
 {% endif %}
 {% if param_usage_include_ports %}
@@ -268,7 +268,7 @@ Container images are configured using parameters passed at runtime (such as thos
 | `-p {{ item.internal_port }}` | {{ item.port_desc }} |
 {% endfor %}
 {% endif %}
-{% if common_param_env_vars_enabled or common_param_env_vars_enabled is sameas optional %}
+{% if common_param_env_vars_enabled %}
 {% for item in common_param_env_vars %}
 | `-e {{ item.env_var }}={{ item.env_value }}` | {{ item.desc }} |
 {% endfor %}
@@ -300,7 +300,7 @@ Container images are configured using parameters passed at runtime (such as thos
 {{ optional_parameters }}
 
 {% endif %}
-{% if common_param_env_vars_enabled or common_param_env_vars_enabled is sameas optional %}
+{% if common_param_env_vars_enabled %}
 ## User / Group Identifiers
 
 When using volumes (`-v` flags) permissions issues can arise between the host OS and the container, we avoid this issue by allowing you to specify the user `PUID` and group `PGID`.
@@ -314,7 +314,7 @@ In this instance `PUID=1001` and `PGID=1001`, to find yours use `id user` as bel
     uid=1001(dockeruser) gid=1001(dockergroup) groups=1001(dockergroup)
 ```
 
-{% if common_param_env_vars_enabled is sameas optional %}
+{% if common_param_env_vars_enabled == 'optional' %}
 You only need to set the PUID and PGID variables if you are mounting the /config folder
 {% endif %}
 {% endif %}
