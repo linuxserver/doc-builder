@@ -41,6 +41,9 @@ param_ports:
 param_device_map: false
 param_devices:
   - { device_path: "/dev/dri", device_host_path: "/dev/dri", desc: "For hardware transcoding" }
+cap_add_param: false
+cap_add_param_vars:
+  - { cap_add_var: "NET_ADMIN" }
 
 # optional container parameters
 opt_param_usage_include_env: false
@@ -55,6 +58,9 @@ opt_param_ports:
 opt_param_device_map: false
 opt_param_devices:
   - { device_path: "/dev/dri", device_host_path: "/dev/dri", desc: "For hardware transcoding" }
+opt_cap_add_param: false
+opt_cap_add_param_vars:
+  - { cap_add_var: "NET_ADMIN" }
 
 optional_block_1: false
 optional_block_1_items:
