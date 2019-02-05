@@ -52,7 +52,7 @@ The architectures supported by this image are:
 | {{ item.arch }} | {{ item.tag }} |
 {% endfor %}
 
-{% if development_versions is defined %}
+{% if development_versions is defined and development_versions is sameas true %}
 ## Version Tags
 
 This image provides various versions that are available via tags. `latest` tag usually provides the latest stable version. Others are considered under development and caution must be exercised when using them.
@@ -76,6 +76,14 @@ docker create \
 {% if param_usage_include_net %}
   --net={{ param_net }} \
 {% endif %}
+{% if privileged is defined and privileged is sameas true %}
+  --privileged \
+{% endif %}
+{% if cap_add_param is defined and cap_add_param is sameas true %}
+{% for item in cap_add_param_vars %}
+  --cap-add={{ item.cap-add_var }} \
+{% endfor %}
+{% endif %}
 {% if common_param_env_vars_enabled %}
 {% for item in common_param_env_vars %}
   -e {{ item.env_var }}={{ item.env_value }} \
@@ -94,6 +102,11 @@ docker create \
 {% if param_usage_include_vols %}
 {% for item in param_volumes %}
   -v {{ item.vol_host_path }}:{{ item.vol_path }} \
+{% endfor %}
+{% endif %}
+{% if param_device_map is defined and param_device_map is sameas true %}
+{% for item in param_devices %}
+  --device {{ item.device_host_path }}:{{ item.device_path }} \
 {% endfor %}
 {% endif %}
   --restart unless-stopped \
@@ -117,6 +130,15 @@ services:
   {{ project_name }}:
     image: {{ lsio_project_name_short }}/{{ project_name }}
     container_name: {{ project_name }}
+{% if privileged is defined and privileged is sameas true %}
+    privileged: true
+{% endif %}
+{% if cap_add_param is defined and cap_add_param is sameas true %}
+    cap_add:
+{% for item in cap_add_param_vars %}
+      - {{ item.cap-add_var }}
+{% endfor %}
+{% endif %}
 {% if param_usage_include_net %}
     network_mode: {{ param_net }}
 {% endif %}
@@ -143,6 +165,12 @@ services:
     ports:
 {% for item in param_ports %}
       - {{ item.external_port }}:{{ item.internal_port }}
+{% endfor %}
+{% endif %}
+{% if param_device_map is defined and param_device_map is sameas true %}
+    devices:
+{% for item in param_devices %}
+      - {{ item.device_host_path }}:{{ item.device_path }}
 {% endfor %}
 {% endif %}
     mem_limit: 4096m
