@@ -81,7 +81,7 @@ docker create \
 {% endif %}
 {% if cap_add_param is defined and cap_add_param is sameas true %}
 {% for item in cap_add_param_vars %}
-  --cap-add={{ item.cap-add_var }} \
+  --cap-add={{ item.cap_add_var }} \
 {% endfor %}
 {% endif %}
 {% if common_param_env_vars_enabled %}
@@ -136,7 +136,7 @@ services:
 {% if cap_add_param is defined and cap_add_param is sameas true %}
     cap_add:
 {% for item in cap_add_param_vars %}
-      - {{ item.cap-add_var }}
+      - {{ item.cap_add_var }}
 {% endfor %}
 {% endif %}
 {% if param_usage_include_net %}
