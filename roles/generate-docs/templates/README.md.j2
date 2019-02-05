@@ -87,6 +87,7 @@ docker create \
 {% for item in cap_add_param_vars %}
   --cap-add={{ item.cap_add_var }} \
 {% endfor %}
+{% endif %}
 {% if opt_cap_add_param %}
 {% for item in opt_cap_add_param_vars %}
   --cap-add={{ item.cap_add_var }} `#optional` \
