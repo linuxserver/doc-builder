@@ -296,12 +296,12 @@ Container images are configured using parameters passed at runtime (such as thos
 {% endif %}
 {% if param_device_map %}
 {% for item in param_devices %}
-| `-v {{ item.device_path }}` | {{ item.desc }} |
+| `--device {{ item.device_path }}` | {{ item.desc }} |
 {% endfor %}
 {% endif %}
 {% if opt_param_device_map %}
 {% for item in opt_param_devices %}
-| `-v {{ item.device_path }}` | {{ item.desc }} |
+| `--device {{ item.device_path }}` | {{ item.desc }} |
 {% endfor %}
 {% endif %}
 
