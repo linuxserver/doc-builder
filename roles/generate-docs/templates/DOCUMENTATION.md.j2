@@ -147,6 +147,7 @@ services:
 {% endif %}
 {% if cap_add_param or opt_cap_add_param %}
     cap_add:
+{% endif %}
 {% if cap_add_param %}
 {% for item in cap_add_param_vars %}
       - {{ item.cap_add_var }}
@@ -156,7 +157,6 @@ services:
 {% for item in opt_cap_add_param_vars %}
       - {{ item.cap_add_var }} #optional
 {% endfor %}
-{% endif %}
 {% endif %}
 {% if param_usage_include_net is sameas true %}
     network_mode: {{ param_net }}
@@ -185,8 +185,10 @@ services:
       - {{ item.env_var }}={{ item.env_value }} #optional
 {% endfor %}
 {% endif %}
-{% if param_usage_include_vols %}
+{% if param_usage_include_vols or opt_param_usage_include_vols %}
     volumes:
+{% endif %}
+{% if param_usage_include_vols %}
 {% for item in param_volumes %}
       - {{ item.vol_host_path }}:{{ item.vol_path }}
 {% endfor %}
@@ -197,8 +199,10 @@ services:
       - {{ item.vol_host_path }}:{{ item.vol_path }} #optional
 {% endfor %}
 {% endif %}
-{% if param_usage_include_ports %}
+{% if param_usage_include_ports or opt_param_usage_include_ports %}
     ports:
+{% endif %}
+{% if param_usage_include_ports %}
 {% for item in param_ports %}
       - {{ item.external_port }}:{{ item.internal_port }}
 {% endfor %}
@@ -211,6 +215,7 @@ services:
 {% endif %}
 {% if param_device_map or opt_param_device_map %}
     devices:
+{% endif %}
 {% if param_device_map %}
 {% for item in param_devices %}
       - {{ item.device_host_path }}:{{ item.device_path }}
@@ -220,7 +225,6 @@ services:
 {% for item in opt_param_devices %}
       - {{ item.device_host_path }}:{{ item.device_path }} #optional
 {% endfor %}
-{% endif %}
 {% endif %}
     mem_limit: 4096m
     restart: unless-stopped{% else %}{{ custom_compose }}{% endif %}
